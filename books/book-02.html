@@ -142,18 +142,20 @@
   .pm-head h2{margin:.02in 0 .01in;line-height:1.12;color:var(--ink)}
   .pm-by{font-family:'BB Kicker';font-size:9.6pt;color:var(--accent-deep)}
   .pm-body{display:flex;gap:.20in;align-items:stretch;margin-bottom:.10in;flex:1 1 auto}
-  .pm-col{flex:1;min-width:0;position:relative;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
-  /* the lighter pool behind the text — a soft radial wash of the page's own
-     tint, so the words sit on calm colour while the painting stays full
-     strength everywhere the pool fades out. It used to bleed sideways past
-     its own column on a negative inset and cut a hard seam straight through
-     the tile box next door — contained to the column's own width now (only
-     the vertical reach is generous), and overflow:hidden on .pm-col is the
-     backstop so it can never again paint outside its own box. */
-  .pm-col:before{content:'';position:absolute;inset:-.34in 0;z-index:0;pointer-events:none;
-    background:radial-gradient(ellipse at center,
-      color-mix(in srgb,var(--pm-tint,var(--paper)) 88%,var(--paper) 12%) 0%,
-      color-mix(in srgb,var(--pm-tint,var(--paper)) 55%,transparent) 60%, transparent 86%)}
+  .pm-col{flex:1;min-width:0;position:relative;display:flex;flex-direction:column;justify-content:center}
+  /* NO SCRIM BEHIND THE TEXT — deliberately.
+     Two attempts at one both failed. The first was a radial wash on a negative
+     inset: it bled sideways out of its column and cut a seam through the tile
+     box next door. Clipping it to the column fixed the bleed and produced
+     something worse — overflow:hidden chopped the gradient mid-fade, so the
+     "soft pool" printed as a pale rectangle with hard vertical edges.
+     Three things already do this job: the plates are commissioned calm and
+     low-contrast through their middles precisely so type can sit on them (see
+     the prompt in voice/pipeline/poem-art.py), the page carries its own
+     --pm-tint wash, and the ground sits at .42 opacity. A fourth layer on top
+     was belt, braces and a rope. A hairline paper-coloured shadow is all the
+     lift the type needs where a plate happens to run busy. */
+  .pm-text{text-shadow:0 1px 1px color-mix(in srgb,var(--paper) 66%,transparent)}
   /* the poem itself is set in the light, variable body face, not the display
      face the rest of the book uses — a whole soliloquy at display weight reads
      as shouting. Mood is carried by weight and tracking within that one family,
@@ -176,6 +178,60 @@
   .pm-g b{font-family:'BB Display';font-size:9.4pt;display:block;color:var(--ink)}
   .pm-g i{font-family:'BB Mono';font-size:7.4pt;font-style:normal;color:var(--accent-deep);display:block}
   .pm-g span{color:var(--muted);display:block}
+  /* ---- the part dividers ----
+     A part opener used to be a centred title on a flat gradient with the book's
+     cartoon mascot stamped under it and a scenery band along the foot. Against
+     eight score bespoke paintings that read as the one page nobody had finished,
+     and the mascot belongs to the eight-year-old half of the library, not to the
+     reader of Ozymandias. So the divider IS the painting now: full bleed, no
+     margins, type sitting on it.
+     The scrim is two gradients, not one flat wash — dark down from the top where
+     the type lands, dark up from the foot so the folio stays legible, and the
+     picture left alone through its middle where it is actually worth looking at.
+     Plates are commissioned with a calm open top third for exactly this
+     (voice/pipeline/section-art.py). */
+  .sc-page{position:relative;overflow:hidden;padding:0;color:#fff;background:#1B1626}
+  /* scale(1.045): asked for full bleed, several plates came back with a painted
+     paper border anyway — a pale frame down two edges of the seaside town, a
+     dark vignette on the playhouse. On a page with no margins that frame reads
+     as a printing error. Overscanning by four per cent throws it off the leaf
+     and costs nothing the eye can find.
+     The overscan lives inside its own clipping frame rather than on the page:
+     a transform on a child still counts towards the parent's scrollHeight even
+     under overflow:hidden, so scaling the image directly made all eight
+     dividers report 24px of overflow to the page checker. */
+  .sc-frame{position:absolute;inset:0;overflow:hidden;z-index:0}
+  .sc-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.045)}
+  .sc-scrim{position:absolute;inset:0;z-index:1;
+    background:linear-gradient(180deg,rgba(16,12,26,.78) 0%,rgba(16,12,26,.62) 26%,rgba(16,12,26,.10) 52%,rgba(16,12,26,.06) 66%,rgba(16,12,26,.62) 100%)}
+  .sc-body{position:absolute;z-index:2;top:1.05in;left:.85in;right:.85in;text-align:center}
+  .sc-num{font-family:'BB Kicker';letter-spacing:.24em;text-transform:uppercase;font-size:10pt;
+    color:rgba(255,255,255,.82);text-shadow:0 2px 8px rgba(0,0,0,.6)}
+  .sc-rule{width:.9in;height:2.5pt;margin:.13in auto;border-radius:2pt;
+    background:linear-gradient(90deg,rgba(255,210,77,.25),rgba(255,210,77,.98),rgba(255,210,77,.25))}
+  .sc-page h1{font-family:'BB Display';font-size:36pt;line-height:1.04;margin:0;color:#fff;
+    text-shadow:0 3px 14px rgba(0,0,0,.7)}
+  .sc-blurb{font-family:'BB Kicker';font-size:11.4pt;line-height:1.55;max-width:4.9in;
+    margin:.18in auto 0;color:rgba(255,255,255,.93);text-shadow:0 2px 10px rgba(0,0,0,.75)}
+  .sc-count{position:absolute;z-index:2;left:0;right:0;bottom:.86in;text-align:center;
+    font-family:'BB Kicker';letter-spacing:.16em;text-transform:uppercase;font-size:9pt;
+    color:rgba(255,255,255,.78);text-shadow:0 2px 8px rgba(0,0,0,.7)}
+  .sc-page .bb-foot{color:rgba(255,255,255,.82);z-index:2}
+  /* the back-of-book indexes: leader dots done with a flex spacer and a repeating
+     radial, because a border-bottom dotted rule sits on the baseline and a row of
+     literal periods will not stay put when the type resizes */
+  .ix{column-count:2;column-gap:.30in}
+  .ix-r{display:flex;align-items:baseline;gap:.05in;font-size:9.2pt;line-height:1.42;break-inside:avoid}
+  .ix-t{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ix-d{flex:1 1 auto;height:.8em;min-width:.12in;
+    background-image:radial-gradient(circle at 1px 88%,var(--muted) .6px,transparent .7px);
+    background-size:4px 100%;opacity:.55}
+  .ix-p{flex:0 0 auto;font-family:'BB Mono';font-size:8.4pt;color:var(--accent-deep)}
+  .ix-h{break-inside:avoid;margin-bottom:.09in}
+  /* BB Display has no ō — "Matsuo Bashō" fell back and printed as "Basho¯". BB Kicker
+     carries the macron (it is the face the credit line under every poem already uses). */
+  .ix-h b{font-family:'BB Kicker';font-weight:700;font-size:10.2pt;color:var(--accent-deep);display:block}
+  .ix-h .ix-t{padding-left:.10in}
   .bb-hive{display:grid;grid-template-columns:1fr 1fr;gap:.12in}
   .bb-card{padding:0 .04in;min-width:0;overflow-wrap:anywhere}
   .bb-card .ex{font-size:9.6pt;line-height:1.32;margin-top:2px;color:var(--ink);opacity:.85}
